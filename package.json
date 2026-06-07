@@ -1,0 +1,29 @@
+{
+  "name": "markdown-table2image",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "biome check --write --unsafe ./src && npx tsc --noEmit"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@biomejs/biome": "^2.4.16",
+    "@types/node": "^25.9.2",
+    "bun": "^1.3.14",
+    "canvas": "^3.2.3",
+    "playwright": "^1.60.0",
+    "rehype-stringify": "^10.0.1",
+    "remark-gfm": "^4.0.1",
+    "remark-parse": "^11.0.0",
+    "remark-rehype": "^11.1.2",
+    "remark-stringify": "^11.0.0",
+    "tsx": "^4.22.4",
+    "unified": "^11.0.5",
+    "unist-util-visit": "^5.1.0"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "skills": {
+    "feature-clarify": {
+      "source": "thr3a/Skills",
+      "sourceType": "github",
+      "skillPath": "skills/feature-clarify/SKILL.md",
+      "computedHash": "c3dbcc2469810b86d774880fbeeb16a4626a2894c517e5e5f3f6f08519919d8c"
+    }
+  }
+}
