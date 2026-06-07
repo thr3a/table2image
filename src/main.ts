@@ -1,13 +1,24 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { type CanvasRenderingContext2D, createCanvas } from 'canvas';
+import { createCanvas, GlobalFonts, type SKRSContext2D } from '@napi-rs/canvas';
 import remarkGfm from 'remark-gfm';
 import remarkParse from 'remark-parse';
 import { unified } from 'unified';
 import { visit } from 'unist-util-visit';
 
+// システムフォントを読み込み（絵文字・CJK対応）
+for (const dir of [
+  '/usr/share/fonts/truetype/noto',
+  '/usr/share/fonts/opentype/noto',
+  '/usr/share/fonts/truetype/dejavu'
+]) {
+  if (fs.existsSync(dir)) {
+    GlobalFonts.loadFontsFromDir(dir);
+  }
+}
+
 const FONT_SIZE = 14;
-const FONT_FAMILY = 'sans-serif';
+const FONT_FAMILY = '"Noto Sans CJK JP", "Noto Color Emoji", "DejaVu Sans", sans-serif';
 const BOLD_FONT = `bold ${FONT_SIZE}px ${FONT_FAMILY}`;
 const NORMAL_FONT = `${FONT_SIZE}px ${FONT_FAMILY}`;
 const LINE_HEIGHT = FONT_SIZE * 1.6;
@@ -95,7 +106,7 @@ const parseTable = (tableNode: TableNode): { rows: Row[]; aligns: TableAlign[] }
   return { rows, aligns };
 };
 
-const measureSegmentsWidth = (ctx: CanvasRenderingContext2D, segments: CellSegment[]): number => {
+const measureSegmentsWidth = (ctx: SKRSContext2D, segments: CellSegment[]): number => {
   let w = 0;
   for (const seg of segments) {
     ctx.font = seg.bold ? BOLD_FONT : NORMAL_FONT;
@@ -105,7 +116,7 @@ const measureSegmentsWidth = (ctx: CanvasRenderingContext2D, segments: CellSegme
 };
 
 const drawCellContent = (
-  ctx: CanvasRenderingContext2D,
+  ctx: SKRSContext2D,
   segments: CellSegment[],
   x: number,
   y: number,
@@ -152,8 +163,7 @@ const renderTable = (rows: Row[], aligns: TableAlign[]): Buffer => {
 
   // measure canvas using 1×1 temporary canvas
   const tempCanvas = createCanvas(1, 1);
-  // canvas ライブラリの getContext は '2d' | 'pdf' | 'svg' の union を返すため as が必要
-  const tempCtx = tempCanvas.getContext('2d') as CanvasRenderingContext2D;
+  const tempCtx = tempCanvas.getContext('2d');
 
   // column widths = natural content width (no wrapping), matching CSS `width: max-content`
   const colWidths: number[] = Array(colCount).fill(0);
@@ -174,9 +184,9 @@ const renderTable = (rows: Row[], aligns: TableAlign[]): Buffer => {
   const canvasW = tableW + WRAPPER_PAD * 2;
   const canvasH = tableH + WRAPPER_PAD * 2;
 
-  const canvas = createCanvas(canvasW, canvasH);
-  // canvas ライブラリの getContext は '2d' | 'pdf' | 'svg' の union を返すため as が必要
-  const ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
+  const canvas = createCanvas(canvasW * 2, canvasH * 2);
+  const ctx = canvas.getContext('2d');
+  ctx.scale(2, 2);
 
   ctx.fillStyle = '#ffffff';
   ctx.fillRect(0, 0, canvasW, canvasH);
@@ -237,7 +247,7 @@ const renderTable = (rows: Row[], aligns: TableAlign[]): Buffer => {
     ctx.stroke();
   }
 
-  return canvas.toBuffer('image/png');
+  return canvas.encodeSync('png');
 };
 
 const main = async () => {
