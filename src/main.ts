@@ -24,7 +24,7 @@ const NORMAL_FONT = `${FONT_SIZE}px ${FONT_FAMILY}`;
 const LINE_HEIGHT = FONT_SIZE * 1.6;
 const CELL_PAD_X = 16;
 const CELL_PAD_Y = 10;
-const WRAPPER_PAD = 20;
+const WRAPPER_PAD = 5;
 
 const COLOR_HEADER_BG = '#24292f';
 const COLOR_HEADER_FG = '#ffffff';
